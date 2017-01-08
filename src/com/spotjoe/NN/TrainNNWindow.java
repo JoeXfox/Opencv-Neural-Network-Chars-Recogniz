@@ -165,7 +165,7 @@ public class TrainNNWindow extends Frame {
 	    int result = openFileChooser.showOpenDialog(this);
             if(result == JFileChooser.APPROVE_OPTION){
                     String path = openFileChooser.getSelectedFile().getPath();
-                    int output = nn.predict(path);
+                    String output = nn.predict(path);
                     JOptionPane.showMessageDialog(this,"Result:"+output);
                     
             }

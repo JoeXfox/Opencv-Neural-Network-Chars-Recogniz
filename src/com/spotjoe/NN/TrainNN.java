@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
@@ -65,7 +66,7 @@ public class TrainNN {
 
     void init() {
         //should load in config.ini
-        outputSize = 10;
+        outputSize = 2;
         inputSize = 400;
         hiddenSize = 25;
         sampleNum = 0;
@@ -239,7 +240,14 @@ public class TrainNN {
         }
         return y;
     }
-    
+    String getYString(int i){
+        for (Entry<String, Integer> one : yStringMap.entrySet()) {
+            if(one.getValue().equals(i)){
+                return one.getKey();
+            }
+        }
+        return "None";
+    }
     void saveOutputMapping(){
         BufferedWriter fWriter;
         try {
@@ -270,7 +278,7 @@ public class TrainNN {
         
         CvANN_MLP_TrainParams params = new CvANN_MLP_TrainParams();
  
-        params.set_term_crit(new TermCriteria(TermCriteria.MAX_ITER+TermCriteria.EPS,  5000, 0.00001));
+        params.set_term_crit(new TermCriteria(TermCriteria.MAX_ITER+TermCriteria.EPS,  5000, 0.001));
         //BP
         params.set_bp_dw_scale(0.1);
         params.set_bp_moment_scale(0.1);
@@ -287,13 +295,13 @@ public class TrainNN {
         
     }
     
-    
+     
     
     void save(String path){
         nn.save(path);
     }
     
-    int predict(String path){
+    String predict(String path){
         predictOutput = Mat.zeros(1, outputSize, CvType.CV_32FC1);
         Mat img = Highgui.imread(path);
         if(img != null){
@@ -310,6 +318,7 @@ public class TrainNN {
             
             int outputIndex = 0;
             double[] max = predictOutput.get(0, 0);
+            System.out.println(predictOutput.dump());
             for(int i = 0; i < predictOutput.cols(); i++){
                if(predictOutput.get(0, i)[0] > max[0]){
                    outputIndex = i;
@@ -317,11 +326,12 @@ public class TrainNN {
                }
             }
             if(max[0] < 0.5){
-                return -1;
+               
+                return "None";
             }
-            return outputIndex;
+            return getYString(outputIndex);
         }
-        return -2;
+        return "Error";
     }
 }
 
